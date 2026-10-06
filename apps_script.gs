@@ -64,7 +64,7 @@ function formatSheet() {
   sh.getRange(1, 1, 1, N).setBackground('#3d3d3d').setFontColor('#ffffff').setFontWeight('bold').setFontSize(11);
   sh.setFrozenRows(1);
   sh.setRowHeight(1, 42);
-  [150, 110, 95, 95, 95, 110, 380, 150, 130, 120].forEach(function (w, i) { sh.setColumnWidth(i + 1, w); });
+  [150, 120, 135, 140, 120, 150, 380, 150, 140, 160].forEach(function (w, i) { sh.setColumnWidth(i + 1, w); });
 
   var body = rows - 1;
   sh.getRange(2, 1, body, 1).setNumberFormat('yyyy-mm-dd  hh:mm').setFontColor('#737373');
