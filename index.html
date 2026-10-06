@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#182a25">
+<title>كيف كانت تجربتك؟ | ESPRESSO SHOT</title>
+<style>
+:root{--green:#18352d;--gold:#c9a66b;--ink:#202522;--muted:#737a75;--paper:#f6f4ef;--white:#fff;--line:#e8e5de}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif}
+.wrap{max-width:560px;margin:0 auto;padding:20px 16px 36px}.card{background:var(--white);border-radius:22px;overflow:hidden;box-shadow:0 12px 34px #1b2b2414}
+.head{background:var(--green);color:white;padding:25px 22px 22px;text-align:center;border-bottom:4px solid var(--gold)}.brand{font-size:13px;font-weight:700;letter-spacing:2px;color:#e7d3ad;direction:ltr}.head h1{font-size:25px;margin:14px 0 7px}.head p{margin:0;color:#e2e8e4;font-size:15px;line-height:1.7}.demo{margin:16px auto 0;width:max-content;max-width:100%;padding:7px 12px;border:1px solid #ffffff60;border-radius:20px;font-size:12px;color:#f2e3c7}
+form{padding:21px 20px}.field{padding:16px 0;border-bottom:1px solid var(--line)}.field:first-child{padding-top:0}.field:last-of-type{border-bottom:0}.label{font-weight:700;font-size:16px;display:block;margin-bottom:12px}.optional{font-weight:400;color:var(--muted);font-size:12px}
+select,textarea{width:100%;font:inherit;border:1px solid #d9ddd9;border-radius:12px;padding:12px;background:#fff;color:var(--ink)}select:focus,textarea:focus{outline:2px solid #b6c8bd;outline-offset:1px}
+input[type="text"],input[type="tel"]{width:100%;font:inherit;border:1px solid #d9ddd9;border-radius:12px;padding:12px;background:#fff;color:var(--ink)}input[type="text"]:focus,input[type="tel"]:focus{outline:2px solid #b6c8bd;outline-offset:1px}
+.ratings{display:flex;gap:8px}.rate{flex:1;position:relative}.rate input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer}.rate span{display:flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #d9ddd9;border-radius:11px;color:#3f4842;font-weight:700;transition:.15s}.rate input:checked+span{background:var(--green);border-color:var(--green);color:white}.rate input:focus-visible+span{outline:3px solid #d9bd8c;outline-offset:2px}.scale{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin-top:7px}
+textarea{resize:vertical;min-height:78px}.submit{width:100%;border:0;background:var(--green);color:white;font:inherit;font-size:16px;font-weight:700;padding:14px;border-radius:13px;margin-top:18px;cursor:pointer}.submit:hover{background:#244b40}.foot{text-align:center;color:var(--muted);font-size:12px;padding:0 18px 20px}.success{display:none;text-align:center;padding:38px 24px 44px}.success .check{font-size:42px}.success h2{color:var(--green);margin:12px 0 8px}.success p{line-height:1.8;color:var(--muted);margin:0}
+</style>
+</head>
+<body>
+<main class="wrap"><section class="card">
+<header class="head"><div class="brand">ESPRESSO SHOT®</div><h1>كيف كانت تجربتك؟</h1><p>رأيك بيساعدنا نطوّر تجربتك<br>الاستبيان أقل من دقيقة</p></header>
+<form id="survey">
+<div class="field"><label class="label" for="branch">أي فرع زرت؟</label><select id="branch" required><option value="" selected disabled>اختَر الفرع</option><option>الفرع الأول</option><option>الفرع الثاني</option><option>الفرع الثالث</option></select></div>
+<div class="field"><span class="label">كيف بتقيّم جودة طلبك؟</span><div class="ratings" role="radiogroup" aria-label="جودة الطلب"><label class="rate"><input type="radio" name="quality" value="1" required><span>1</span></label><label class="rate"><input type="radio" name="quality" value="2"><span>2</span></label><label class="rate"><input type="radio" name="quality" value="3"><span>3</span></label><label class="rate"><input type="radio" name="quality" value="4"><span>4</span></label><label class="rate"><input type="radio" name="quality" value="5"><span>5</span></label></div><div class="scale"><span>بحاجة لتحسين</span><span>ممتاز</span></div></div>
+<div class="field"><span class="label">كيف بتقيّم سرعة الخدمة؟</span><div class="ratings" role="radiogroup" aria-label="سرعة الخدمة"><label class="rate"><input type="radio" name="speed" value="1" required><span>1</span></label><label class="rate"><input type="radio" name="speed" value="2"><span>2</span></label><label class="rate"><input type="radio" name="speed" value="3"><span>3</span></label><label class="rate"><input type="radio" name="speed" value="4"><span>4</span></label><label class="rate"><input type="radio" name="speed" value="5"><span>5</span></label></div><div class="scale"><span>بحاجة لتحسين</span><span>ممتاز</span></div></div>
+<div class="field"><span class="label">كيف بتقيّم نظافة المكان؟</span><div class="ratings" role="radiogroup" aria-label="نظافة المكان"><label class="rate"><input type="radio" name="clean" value="1" required><span>1</span></label><label class="rate"><input type="radio" name="clean" value="2"><span>2</span></label><label class="rate"><input type="radio" name="clean" value="3"><span>3</span></label><label class="rate"><input type="radio" name="clean" value="4"><span>4</span></label><label class="rate"><input type="radio" name="clean" value="5"><span>5</span></label></div><div class="scale"><span>بحاجة لتحسين</span><span>ممتاز</span></div></div>
+<div class="field"><span class="label">كيف كانت تجربتك بشكل عام؟</span><div class="ratings" role="radiogroup" aria-label="التجربة العامة"><label class="rate"><input type="radio" name="overall" value="1" required><span>1</span></label><label class="rate"><input type="radio" name="overall" value="2"><span>2</span></label><label class="rate"><input type="radio" name="overall" value="3"><span>3</span></label><label class="rate"><input type="radio" name="overall" value="4"><span>4</span></label><label class="rate"><input type="radio" name="overall" value="5"><span>5</span></label></div><div class="scale"><span>بحاجة لتحسين</span><span>ممتاز</span></div></div>
+<div class="field"><label class="label" for="note">شو بتحب تقترح علينا؟ <span class="optional">(اختياري)</span></label><textarea id="note" placeholder="اكتب ملاحظتك أو اقتراحك هنا"></textarea></div>
+<div class="field"><span class="label">عندك مشكلة وبتحب نتواصل معك؟ <span class="optional">(اختياري)</span></span><p class="optional" style="margin:0 0 12px;line-height:1.7">اترك اسمك ورقمك، وفريقنا بتواصل معك بخصوص ملاحظتك.</p><label for="customerName" class="optional">الاسم</label><input id="customerName" name="customerName" type="text" autocomplete="name" placeholder="اسمك" style="margin:6px 0 12px"><label for="customerPhone" class="optional">رقم الهاتف</label><input id="customerPhone" name="customerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="05X XXX XXXX"><label style="display:flex;gap:9px;align-items:flex-start;margin-top:14px;font-size:13px;line-height:1.6;color:#3f4842"><input id="contactConsent" type="checkbox" style="margin-top:4px;accent-color:#18352d"><span>أوافق أن يتواصل معي فريق ESPRESSO SHOT®️ بخصوص ملاحظتي.</span></label></div>
+<input type="text" id="website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+<p id="formError" role="alert" hidden style="margin:14px 0 0;padding:11px 13px;border-radius:11px;background:#fbeceb;color:#8f2a22;font-size:14px;line-height:1.7"></p>
+<button class="submit" id="submitBtn" type="submit">إرسال التقييم</button>
+</form><div id="success" class="success"><div class="check">✓</div><h2>شكرًا لمشاركتك!</h2><p>وصلنا تقييمك.<br>يسعدنا نشوفك مرة ثانية في ESPRESSO SHOT®️</p></div>
+<div class="foot">يسعدنا رأيك، وشكرًا لزيارتك</div>
+</section></main>
+<script>
+// ضع هنا رابط Google Apps Script (ينتهي بـ /exec)
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbyn9lIWM79NCVdnwO3Q7VTU7eYcjvJsS4AT2DZTWiQs5Sfe4RGsLhUhe6gDptVnS3-D/exec";
+
+const form=document.getElementById('survey'),btn=document.getElementById('submitBtn'),errBox=document.getElementById('formError');
+function showError(msg){errBox.textContent=msg;errBox.hidden=false;}
+function picked(n){const el=form.querySelector('input[name="'+n+'"]:checked');return el?el.value:'';}
+form.addEventListener('submit',async function(e){
+  e.preventDefault();errBox.hidden=true;
+  const name=document.getElementById('customerName'),phone=document.getElementById('customerPhone'),consent=document.getElementById('contactConsent');
+  const hasContact=name.value.trim()||phone.value.trim();
+  if(hasContact&&!consent.checked){showError('لطفًا وافق على التواصل معنا بخصوص ملاحظتك حتى نستخدم بيانات التواصل.');consent.focus();return}
+  if(consent.checked&&(!name.value.trim()||!phone.value.trim())){showError('للتواصل معك، أدخل اسمك ورقم هاتفك.');(!name.value.trim()?name:phone).focus();return}
+  if(!/^https:\/\//.test(ENDPOINT)){showError('النموذج غير مفعّل بعد. لطفًا بلّغ أحد الموظفين.');return}
+  const data={branch:document.getElementById('branch').value,quality:picked('quality'),speed:picked('speed'),clean:picked('clean'),overall:picked('overall'),note:document.getElementById('note').value.trim(),name:name.value.trim(),phone:phone.value.trim(),consent:consent.checked,website:document.getElementById('website').value};
+  btn.disabled=true;btn.textContent='جاري الإرسال...';
+  try{
+    const res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});
+    const out=await res.json();
+    if(!out.ok)throw new Error(out.error||'failed');
+    form.style.display='none';document.getElementById('success').style.display='block';window.scrollTo({top:0,behavior:'smooth'});
+  }catch(err){
+    showError('ما قدرنا نرسل تقييمك. تأكد من اتصال الإنترنت وجرّب مرة ثانية.');
+    btn.disabled=false;btn.textContent='إرسال التقييم';
+  }
+});
+</script>
+</body></html>
