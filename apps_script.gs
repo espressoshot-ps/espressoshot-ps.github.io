@@ -191,7 +191,8 @@ function buildDashboard_(ss) {
     sm.getRange(row, 9).setFormula(pick(n, 1));
   }
   sm.setRowHeights(24, 5, 48);
-  sm.getRange(24, 2, 5, 1).setFontWeight('bold').setFontSize(14);
+  sm.getRange(24, 2, 5, 1).setFontWeight('bold').setFontSize(14).setNumberFormat('0');
+  sm.getRange(24, 8, 5, 1).setNumberFormat('@');
   sm.getRange(24, 8, 5, 1).setFontColor(MUTED);
   sm.getRange(24, 9, 5, 1).setNumberFormat('dd/mm  hh:mm').setFontColor(MUTED).setFontSize(10);
   sm.getRange(24, 2, 5, 8).setBorder(null, null, true, null, null, true, LINE, SOLID);
