@@ -80,7 +80,7 @@ function styleResponses_(sh) {
   sh.getRange(1, 1, 1, N).setBackground(DARK).setFontColor('#ffffff').setFontWeight('bold');
   sh.setFrozenRows(1);
   sh.setRowHeight(1, 46);
-  [150, 120, 135, 140, 120, 150, 380, 150, 140, 160].forEach(function (w, i) { sh.setColumnWidth(i + 1, w); });
+  [150, 120, 135, 140, 120, 150, 460, 150, 140, 160].forEach(function (w, i) { sh.setColumnWidth(i + 1, w); });
 
   sh.getRange(2, 1, body, 1).setNumberFormat('dd/mm/yyyy  hh:mm').setFontColor(MUTED).setFontSize(10);
   sh.getRange(2, 2, body, 1).setFontWeight('bold');
@@ -88,6 +88,7 @@ function styleResponses_(sh) {
   sh.getRange(2, 7, body, 1).setHorizontalAlignment('right').setWrap(true);
   sh.getRange(2, 8, body, 1).setHorizontalAlignment('right');
   sh.getRange(2, 9, body, 1).setNumberFormat('@');
+  sh.setRowHeights(2, body, 42);
   sh.setHiddenGridlines(true);
 
   var ratings = sh.getRange(2, 3, body, 4), contact = sh.getRange(2, 8, body, 3);
@@ -144,7 +145,7 @@ function buildDashboard_(ss) {
   // Per-branch table
   sm.getRange(8, 2, 1, 8).merge().setValue('حسب الفرع').setFontSize(13).setFontWeight('bold').setHorizontalAlignment('right');
   sm.getRange(9, 2, 1, 2).merge().setValue('الفرع');
-  sm.getRange(9, 4, 1, 6).setValues([['الردود', 'جودة الطلب', 'سرعة الخدمة', 'النظافة', 'التجربة العامة', 'من 5']]);
+  sm.getRange(9, 4, 1, 6).setValues([['الردود', 'جودة الطلب', 'سرعة الخدمة', 'النظافة', 'التجربة العامة', 'من 5 نقاط']]);
   sm.getRange(9, 2, 1, 8).setBackground(DARK).setFontColor('#ffffff').setFontWeight('bold');
   BRANCHES.concat(['كل الفروع']).forEach(function (b, i) {
     var r = 10 + i, isTotal = i === BRANCHES.length;
@@ -155,7 +156,8 @@ function buildDashboard_(ss) {
       sm.getRange(r, 5 + k).setFormula(isTotal ? '=IFERROR(AVERAGE(' + rng + '),"—")'
         : '=IFERROR(AVERAGEIF(' + q + '$B$2:$B,$B' + r + ',' + rng + '),"—")');
     });
-    sm.getRange(r, 9).setFormula('=IF(ISNUMBER(H' + r + '),SPARKLINE(H' + r + ',{"charttype","bar";"max",5;"rtl",TRUE;"color1","#4a4a4a"}),"")');
+    sm.getRange(r, 9).setFormula('=IF(ISNUMBER(H' + r + '),REPT("●",ROUND(H' + r + '))&REPT("○",5-ROUND(H' + r + ')),"")')
+      .setFontColor('#4a4a4a').setFontSize(14);
     if (isTotal) sm.getRange(r, 2, 1, 8).setBackground('#ececec').setFontWeight('bold');
   });
   sm.getRange(10, 5, 4, 4).setNumberFormat('0.0');
@@ -173,20 +175,25 @@ function buildDashboard_(ss) {
     });
   sm.getRange(16, 2, 5, 8).setBorder(null, null, true, null, null, true, LINE, SOLID);
 
-  // Latest notes
+  // Latest notes: rating, note, branch, date (read right to left)
   sm.getRange(22, 2, 1, 8).merge().setValue('آخر الملاحظات').setFontSize(13).setFontWeight('bold').setHorizontalAlignment('right');
-  sm.getRange(23, 2, 1, 3).setValues([['التاريخ', 'الفرع', 'التقييم']]);
-  sm.getRange(23, 5, 1, 5).merge().setValue('الملاحظة');
+  sm.getRange(23, 2).setValue('التقييم');
+  sm.getRange(23, 3, 1, 5).merge().setValue('الملاحظة').setHorizontalAlignment('right');
+  sm.getRange(23, 8, 1, 2).setValues([['الفرع', 'التاريخ']]);
   sm.getRange(23, 2, 1, 8).setBackground(DARK).setFontColor('#ffffff').setFontWeight('bold');
   var src = 'SORT(FILTER({' + q + 'A2:A,' + q + 'B2:B,' + q + 'F2:F,' + q + 'G2:G},' + q + 'G2:G<>""),1,FALSE)';
+  var pick = function (n, k) { return '=IFERROR(INDEX(' + src + ',' + n + ',' + k + '),"")'; };
   for (var n = 1; n <= 5; n++) {
     var row = 23 + n;
-    for (var k = 1; k <= 3; k++) sm.getRange(row, 1 + k).setFormula('=IFERROR(INDEX(' + src + ',' + n + ',' + k + '),"")');
-    sm.getRange(row, 5, 1, 5).merge().setFormula('=IFERROR(INDEX(' + src + ',' + n + ',4),"")')
-      .setHorizontalAlignment('right').setWrap(true);
+    sm.getRange(row, 2).setFormula(pick(n, 3));
+    sm.getRange(row, 3, 1, 5).merge().setFormula(pick(n, 4)).setHorizontalAlignment('right').setWrap(true);
+    sm.getRange(row, 8).setFormula(pick(n, 2));
+    sm.getRange(row, 9).setFormula(pick(n, 1));
   }
-  sm.getRange(24, 2, 5, 1).setNumberFormat('dd/mm  hh:mm').setFontColor(MUTED).setFontSize(10);
-  sm.getRange(24, 4, 5, 1).setFontWeight('bold');
+  sm.setRowHeights(24, 5, 48);
+  sm.getRange(24, 2, 5, 1).setFontWeight('bold').setFontSize(14);
+  sm.getRange(24, 8, 5, 1).setFontColor(MUTED);
+  sm.getRange(24, 9, 5, 1).setNumberFormat('dd/mm  hh:mm').setFontColor(MUTED).setFontSize(10);
   sm.getRange(24, 2, 5, 8).setBorder(null, null, true, null, null, true, LINE, SOLID);
 
   sm.setConditionalFormatRules([
@@ -194,7 +201,7 @@ function buildDashboard_(ss) {
       .setFontColor(RED).setBold(true).setRanges([sm.getRange(10, 5, 4, 4)]).build(),
     SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=$H$6>0')
       .setFontColor(RED).setRanges([sm.getRange(6, 8, 1, 2)]).build(),
-    SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=AND(ISNUMBER($D24),$D24<=2)')
-      .setFontColor(RED).setRanges([sm.getRange(24, 4, 5, 1)]).build()
+    SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=AND(ISNUMBER($B24),$B24<=2)')
+      .setFontColor(RED).setRanges([sm.getRange(24, 2, 5, 1)]).build()
   ]);
 }
