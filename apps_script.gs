@@ -85,9 +85,9 @@ var LOGO_URL = 'https://espressoshot-ps.github.io/logo.png';
 // Responses tab: logo banner in row 1, column headers in row 2, data from row 3.
 function styleResponses_(sh) {
   var N = HEADERS.length;
-  // Espresso Shot greys (same as the shift schedule and the form); red only for low ratings
-  var P = { head: '#ececec', headInk: '#262626', ink: '#262626', muted: '#737373', band: '#f7f7f7', rule: '#e0e0e0',
-            lowBg: '#f6e3e1', lowInk: '#b3261e', midBg: '#ececec', midInk: '#4a4a4a', hiBg: '#ffffff', hiInk: '#262626', callBg: '#f3f3f3' };
+  // Same palette as the dashboard tab: dark header, white rows, grey lines, red only for low ratings
+  var P = { head: DARK, headInk: '#ffffff', ink: INK, muted: MUTED, band: '#ffffff', rule: LINE,
+            lowBg: '#ffffff', lowInk: RED, midBg: '#ffffff', midInk: INK, hiBg: '#ffffff', hiInk: INK, callBg: SOFT };
   sh.setName(DATA).setTabColor(DARK);
   sh.setRightToLeft(true);
   if (sh.getMaxColumns() < N) sh.insertColumnsAfter(sh.getMaxColumns(), N - sh.getMaxColumns());
@@ -112,7 +112,7 @@ function styleResponses_(sh) {
   var title = 'ردود الزبائن', sub = 'كل رد جديد بيظهر هون تلقائياً';
   sh.getRange(1, 3, 1, 5).merge().setHorizontalAlignment('right').setVerticalAlignment('middle').setWrap(true)
     .setRichTextValue(SpreadsheetApp.newRichTextValue().setText(title + '\n' + sub)
-      .setTextStyle(0, title.length, SpreadsheetApp.newTextStyle().setFontSize(16).setBold(true).setForegroundColor(P.headInk).build())
+      .setTextStyle(0, title.length, SpreadsheetApp.newTextStyle().setFontSize(16).setBold(true).setForegroundColor(INK).build())
       .setTextStyle(title.length + 1, title.length + 1 + sub.length, SpreadsheetApp.newTextStyle().setFontSize(10).setForegroundColor(P.muted).build())
       .build());
   sh.getRange(1, 1, 1, N).setBorder(null, null, true, null, null, null, P.rule, SpreadsheetApp.BorderStyle.SOLID);
@@ -151,9 +151,11 @@ function styleResponses_(sh) {
   sh.getRange(2, 1, rows - 1, N).createFilter();
 }
 
+// Dashboard laid out to fit one screen: two blocks side by side (RTL: right block first).
+// Right block B:I = tiles, per-branch table, latest notes. Left block K:R = tiles, rating spread, app stats.
 function buildDashboard_(ss) {
   var sm = ss.getSheetByName(SUM) || ss.insertSheet(SUM, 1);
-  var C = 9, R = 35, q = "'" + DATA + "'!";
+  var C = 18, R = 21, q = "'" + DATA + "'!";
   if (sm.getMaxColumns() < C) sm.insertColumnsAfter(sm.getMaxColumns(), C - sm.getMaxColumns());
   if (sm.getMaxColumns() > C) sm.deleteColumns(C + 1, sm.getMaxColumns() - C);
   if (sm.getMaxRows() < R) sm.insertRowsAfter(sm.getMaxRows(), R - sm.getMaxRows());
@@ -162,41 +164,40 @@ function buildDashboard_(ss) {
   all.breakApart();
   sm.clear();
   sm.clearConditionalFormatRules();
-  sm.setRightToLeft(true).setTabColor(DARK);
-  sm.setHiddenGridlines(true);
-  sm.setFrozenRows(0);
-  all.setFontFamily(FONT).setFontSize(11).setFontColor(INK).setVerticalAlignment('middle').setHorizontalAlignment('center');
-  sm.setColumnWidth(1, 28);
-  for (var c = 2; c <= C; c++) sm.setColumnWidth(c, 124);
-  var heights = { 1: 14, 2: 44, 3: 26, 4: 16, 5: 34, 6: 62, 7: 26, 8: 36, 9: 40, 14: 26, 15: 36, 21: 26, 22: 36, 23: 36 };
-  for (var r = 1; r <= R; r++) sm.setRowHeight(r, heights[r] || 36);
+  sm.setRightToLeft(true).setTabColor(DARK).setHiddenGridlines(true).setFrozenRows(0);
+  all.setFontFamily(FONT).setFontSize(10).setFontColor(INK).setVerticalAlignment('middle').setHorizontalAlignment('center').setBackground('#ffffff');
+  sm.setColumnWidth(1, 16);
+  for (var c = 2; c <= C; c++) sm.setColumnWidth(c, 80);
+  sm.setColumnWidth(10, 24);
+  var H = { 1: 10, 2: 34, 3: 18, 4: 8, 5: 22, 6: 44, 7: 12, 8: 26, 9: 28, 10: 28, 11: 28, 12: 28, 13: 28, 14: 12, 15: 26, 16: 28, 17: 32, 18: 32, 19: 32, 20: 10, 21: 10 };
+  for (var r = 1; r <= R; r++) sm.setRowHeight(r, H[r]);
   var SOLID = SpreadsheetApp.BorderStyle.SOLID, THICK = SpreadsheetApp.BorderStyle.SOLID_THICK;
+  var title = function (row, col, n, text) {
+    sm.getRange(row, col, 1, n).merge().setValue(text).setFontSize(12).setFontWeight('bold').setHorizontalAlignment('right');
+  };
+  var head = function (row, col, n) { sm.getRange(row, col, 1, n).setBackground(DARK).setFontColor('#ffffff').setFontWeight('bold'); };
+  var lines = function (row, col, rows, n) { sm.getRange(row, col, rows, n).setBorder(null, null, true, null, null, true, LINE, SOLID); };
 
   // Title
-  sm.getRange(2, 2, 1, 8).merge().setValue('ESPRESSO SHOT').setFontFamily('Jost').setFontSize(22)
-    .setFontColor('#4a4a4a').setHorizontalAlignment('right');
-  sm.getRange(3, 2, 1, 8).merge().setValue('ملخص تقييمات الزبائن · يتحدّث تلقائياً مع كل رد جديد')
-    .setFontColor(MUTED).setFontSize(10).setHorizontalAlignment('right');
+  sm.getRange(2, 2, 1, 8).merge().setValue('ESPRESSO SHOT').setFontFamily('Jost').setFontSize(20).setFontColor('#4a4a4a').setHorizontalAlignment('right');
+  sm.getRange(3, 2, 1, 8).merge().setValue('ملخص تقييمات الزبائن · يتحدّث تلقائياً مع كل رد جديد').setFontColor(MUTED).setHorizontalAlignment('right');
 
-  // Four tiles
-  var tiles = [
-    ['عدد الردود', '=COUNTA(' + q + 'B3:B)', '0'],
-    ['متوسط التجربة العامة (من 5)', '=IFERROR(AVERAGE(' + q + 'F3:F),"—")', '0.0'],
-    ['طلبوا التواصل معهم', '=COUNTIF(' + q + 'J3:J,"نعم")', '0'],
-    ['تقييم عام 2 أو أقل', '=COUNTIF(' + q + 'F3:F,"<=2")', '0']
-  ];
-  tiles.forEach(function (t, i) {
-    var col = 2 + i * 2;
-    sm.getRange(5, col, 1, 2).merge().setValue(t[0]).setFontColor(MUTED).setFontSize(10).setVerticalAlignment('bottom');
-    sm.getRange(6, col, 1, 2).merge().setFormula(t[1]).setNumberFormat(t[2]).setFontSize(28);
-    sm.getRange(5, col, 2, 2).setBackground(SOFT).setBorder(true, true, true, true, null, null, '#ffffff', THICK);
+  // Four tiles across both blocks
+  [['عدد الردود', '=COUNTA(' + q + 'B3:B)', '0', 2],
+   ['متوسط التجربة العامة (من 5)', '=IFERROR(AVERAGE(' + q + 'F3:F),"—")', '0.0', 6],
+   ['طلبوا التواصل معهم', '=COUNTIF(' + q + 'J3:J,"نعم")', '0', 11],
+   ['تقييم عام 2 أو أقل', '=COUNTIF(' + q + 'F3:F,"<=2")', '0', 15]
+  ].forEach(function (t) {
+    sm.getRange(5, t[3], 1, 4).merge().setValue(t[0]).setFontColor(MUTED).setVerticalAlignment('bottom');
+    sm.getRange(6, t[3], 1, 4).merge().setFormula(t[1]).setNumberFormat(t[2]).setFontSize(22);
+    sm.getRange(5, t[3], 2, 4).setBackground(SOFT).setBorder(true, true, true, true, null, null, '#ffffff', THICK);
   });
 
-  // Per-branch table
-  sm.getRange(8, 2, 1, 8).merge().setValue('حسب الفرع').setFontSize(13).setFontWeight('bold').setHorizontalAlignment('right');
+  // Right block: per-branch table (rows 8-13)
+  title(8, 2, 8, 'حسب الفرع');
   sm.getRange(9, 2, 1, 2).merge().setValue('الفرع');
-  sm.getRange(9, 4, 1, 6).setValues([['الردود', 'جودة الطلب', 'سرعة الخدمة', 'النظافة', 'التجربة العامة', 'من 5 نقاط']]);
-  sm.getRange(9, 2, 1, 8).setBackground(DARK).setFontColor('#ffffff').setFontWeight('bold');
+  sm.getRange(9, 4, 1, 6).setValues([['الردود', 'الجودة', 'السرعة', 'النظافة', 'العامة', 'من 5']]);
+  head(9, 2, 8);
   BRANCHES.concat(['كل الفروع']).forEach(function (b, i) {
     var r = 10 + i, isTotal = i === BRANCHES.length;
     sm.getRange(r, 2, 1, 2).merge().setValue(b).setFontWeight('bold').setHorizontalAlignment('right');
@@ -206,67 +207,59 @@ function buildDashboard_(ss) {
       sm.getRange(r, 5 + k).setFormula(isTotal ? '=IFERROR(AVERAGE(' + rng + '),"—")'
         : '=IFERROR(AVERAGEIF(' + q + '$B$3:$B,$B' + r + ',' + rng + '),"—")');
     });
-    sm.getRange(r, 9).setFormula('=IF(ISNUMBER(H' + r + '),REPT("●",ROUND(H' + r + '))&REPT("○",5-ROUND(H' + r + ')),"")')
-      .setFontColor('#4a4a4a').setFontSize(14);
+    sm.getRange(r, 9).setFormula('=IF(ISNUMBER(H' + r + '),REPT("●",ROUND(H' + r + '))&REPT("○",5-ROUND(H' + r + ')),"")').setFontColor('#4a4a4a').setFontSize(11);
     if (isTotal) sm.getRange(r, 2, 1, 8).setBackground('#ececec').setFontWeight('bold');
   });
   sm.getRange(10, 5, 4, 4).setNumberFormat('0.0');
-  sm.getRange(10, 2, 4, 8).setBorder(null, null, true, null, null, true, LINE, SOLID);
+  lines(10, 2, 4, 8);
 
-  // Distribution of the overall rating
-  sm.getRange(15, 2, 1, 8).merge().setValue('توزيع التجربة العامة').setFontSize(13).setFontWeight('bold').setHorizontalAlignment('right');
-  [[5, 'ممتاز', '#4a4a4a'], [4, 'جيد جداً', '#4a4a4a'], [3, 'مقبول', '#c28a00'], [2, 'ضعيف', RED], [1, 'بحاجة لتحسين', RED]]
+  // Left block: spread of the overall rating (rows 8-13)
+  title(8, 11, 8, 'توزيع التجربة العامة');
+  [[5, 'ممتاز', '#4a4a4a'], [4, 'جيد جداً', '#4a4a4a'], [3, 'مقبول', '#9a9a9a'], [2, 'ضعيف', RED], [1, 'بحاجة لتحسين', RED]]
     .forEach(function (d, i) {
-      var r = 16 + i;
-      sm.getRange(r, 2, 1, 2).merge().setValue(d[0] + '  ·  ' + d[1]).setHorizontalAlignment('right');
-      sm.getRange(r, 4).setFormula('=COUNTIF(' + q + 'F3:F,' + d[0] + ')').setFontWeight('bold');
-      sm.getRange(r, 5, 1, 5).merge().setFormula('=IF(D' + r + '>0,SPARKLINE(D' + r +
-        ',{"charttype","bar";"max",MAX($D$16:$D$20);"rtl",TRUE;"color1","' + d[2] + '"}),"")');
+      var r = 9 + i;
+      sm.getRange(r, 11, 1, 2).merge().setValue(d[0] + '  ·  ' + d[1]).setHorizontalAlignment('right');
+      sm.getRange(r, 13).setFormula('=COUNTIF(' + q + 'F3:F,' + d[0] + ')').setFontWeight('bold');
+      sm.getRange(r, 14, 1, 5).merge().setFormula('=IF(M' + r + '>0,SPARKLINE(M' + r +
+        ',{"charttype","bar";"max",MAX($M$9:$M$13);"rtl",TRUE;"color1","' + d[2] + '"}),"")');
     });
-  sm.getRange(16, 2, 5, 8).setBorder(null, null, true, null, null, true, LINE, SOLID);
+  lines(9, 11, 5, 8);
 
-  // Latest notes: rating, note, branch, date (read right to left)
-  sm.getRange(22, 2, 1, 8).merge().setValue('آخر الملاحظات').setFontSize(13).setFontWeight('bold').setHorizontalAlignment('right');
-  sm.getRange(23, 2).setValue('التقييم');
-  sm.getRange(23, 3, 1, 5).merge().setValue('الملاحظة').setHorizontalAlignment('right');
-  sm.getRange(23, 8, 1, 2).setValues([['الفرع', 'التاريخ']]);
-  sm.getRange(23, 2, 1, 8).setBackground(DARK).setFontColor('#ffffff').setFontWeight('bold');
+  // Right block: latest notes (rows 15-19)
+  title(15, 2, 8, 'آخر الملاحظات');
+  sm.getRange(16, 2).setValue('التقييم');
+  sm.getRange(16, 3, 1, 5).merge().setValue('الملاحظة').setHorizontalAlignment('right');
+  sm.getRange(16, 8, 1, 2).merge().setValue('الفرع · التاريخ');
+  head(16, 2, 8);
   var src = 'SORT(FILTER({' + q + 'A3:A,' + q + 'B3:B,' + q + 'F3:F,' + q + 'G3:G},' + q + 'G3:G<>""),1,FALSE)';
-  var pick = function (n, k) { return '=IFERROR(INDEX(' + src + ',' + n + ',' + k + '),"")'; };
-  for (var n = 1; n <= 5; n++) {
-    var row = 23 + n;
-    sm.getRange(row, 2).setFormula(pick(n, 3));
-    sm.getRange(row, 3, 1, 5).merge().setFormula(pick(n, 4)).setHorizontalAlignment('right').setWrap(true);
-    sm.getRange(row, 8).setFormula(pick(n, 2));
-    sm.getRange(row, 9).setFormula(pick(n, 1));
+  var pick = function (n, k) { return 'INDEX(' + src + ',' + n + ',' + k + ')'; };
+  for (var n = 1; n <= 3; n++) {
+    var row = 16 + n;
+    sm.getRange(row, 2).setFormula('=IFERROR(' + pick(n, 3) + ',"")').setNumberFormat('0').setFontWeight('bold').setFontSize(12);
+    sm.getRange(row, 3, 1, 5).merge().setFormula('=IFERROR(' + pick(n, 4) + ',"")').setHorizontalAlignment('right').setWrap(true);
+    sm.getRange(row, 8, 1, 2).merge().setFormula('=IFERROR(' + pick(n, 2) + '&"  ·  "&TEXT(' + pick(n, 1) + ',"dd/mm"),"")').setFontColor(MUTED);
   }
-  sm.setRowHeights(24, 5, 48);
-  sm.getRange(24, 2, 5, 1).setFontWeight('bold').setFontSize(14).setNumberFormat('0');
-  sm.getRange(24, 8, 5, 1).setNumberFormat('@');
-  sm.getRange(24, 8, 5, 1).setFontColor(MUTED);
-  sm.getRange(24, 9, 5, 1).setNumberFormat('dd/mm  hh:mm').setFontColor(MUTED).setFontSize(10);
-  sm.getRange(24, 2, 5, 8).setBorder(null, null, true, null, null, true, LINE, SOLID);
+  lines(17, 2, 3, 8);
 
-  // App section
-  sm.getRange(30, 2, 1, 8).merge().setValue('تطبيق ESPRESSO SHOT').setFontSize(13).setFontWeight('bold').setHorizontalAlignment('right');
-  var appRows = [
-    ['نسبة اللي جرّبوا التطبيق', '=IFERROR(COUNTIF(' + q + 'K3:K,"نعم")/COUNTA(' + q + 'K3:K),"—")', '0%'],
-    ['متوسط تقييم التطبيق (من 5)', '=IFERROR(AVERAGE(' + q + 'L3:L),"—")', '0.0'],
-    ['أكثر سبب لعدم التجربة', '=IFERROR(INDEX(QUERY({' + q + 'M3:M},"select Col1, count(Col1) where Col1 <> \'\' group by Col1 order by count(Col1) desc limit 1",0),2,1),"—")', '@']
-  ];
-  appRows.forEach(function (a, i) {
-    var r = 31 + i;
-    sm.getRange(r, 2, 1, 3).merge().setValue(a[0]).setHorizontalAlignment('right').setFontColor(MUTED);
-    sm.getRange(r, 5, 1, 5).merge().setFormula(a[1]).setNumberFormat(a[2]).setHorizontalAlignment('right').setFontWeight('bold').setFontSize(13);
+  // Left block: app stats (rows 15-19)
+  title(15, 11, 8, 'تطبيق ESPRESSO SHOT');
+  [['نسبة اللي جرّبوا التطبيق', '=IFERROR(COUNTIF(' + q + 'K3:K,"نعم")/COUNTA(' + q + 'K3:K),"—")', '0%'],
+   ['متوسط تقييم التطبيق (من 5)', '=IFERROR(AVERAGE(' + q + 'L3:L),"—")', '0.0'],
+   ['أكثر سبب لعدم التجربة', '=IFERROR(INDEX(QUERY({' + q + 'M3:M},"select Col1, count(Col1) where Col1 <> \'\' group by Col1 order by count(Col1) desc limit 1",0),2,1),"—")', '@']
+  ].forEach(function (a, i) {
+    var r = 17 + i;
+    sm.getRange(r, 11, 1, 4).merge().setValue(a[0]).setHorizontalAlignment('right').setFontColor(MUTED);
+    sm.getRange(r, 15, 1, 4).merge().setFormula(a[1]).setNumberFormat(a[2]).setHorizontalAlignment('right').setFontWeight('bold').setFontSize(12);
   });
-  sm.getRange(31, 2, 3, 8).setBorder(null, null, true, null, null, true, LINE, SOLID);
+  sm.getRange(16, 11, 1, 8).setBorder(null, null, true, null, null, null, DARK, SOLID);
+  lines(17, 11, 3, 8);
 
   sm.setConditionalFormatRules([
     SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=AND(ISNUMBER(E10),E10<3)')
       .setFontColor(RED).setBold(true).setRanges([sm.getRange(10, 5, 4, 4)]).build(),
-    SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=$H$6>0')
-      .setFontColor(RED).setRanges([sm.getRange(6, 8, 1, 2)]).build(),
-    SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=AND(ISNUMBER($B24),$B24<=2)')
-      .setFontColor(RED).setRanges([sm.getRange(24, 2, 5, 1)]).build()
+    SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=$O$6>0')
+      .setFontColor(RED).setRanges([sm.getRange(6, 15, 1, 4)]).build(),
+    SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=AND(ISNUMBER($B17),$B17<=2)')
+      .setFontColor(RED).setRanges([sm.getRange(17, 2, 3, 1)]).build()
   ]);
 }
