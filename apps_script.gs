@@ -85,8 +85,9 @@ var LOGO_URL = 'https://espressoshot-ps.github.io/logo.png';
 // Responses tab: logo banner in row 1, column headers in row 2, data from row 3.
 function styleResponses_(sh) {
   var N = HEADERS.length;
-  var P = { head: '#ebe7e1', headInk: '#3d3d3d', ink: '#3a3a3a', muted: '#8a857e', band: '#faf8f5', rule: '#ece8e2',
-            lowBg: '#f7e4e1', lowInk: '#a4433a', midBg: '#f8efdc', midInk: '#86681f', hiBg: '#e6efe8', hiInk: '#3f6e4f', callBg: '#fbf4e4' };
+  // Espresso Shot greys (same as the shift schedule and the form); red only for low ratings
+  var P = { head: '#ececec', headInk: '#262626', ink: '#262626', muted: '#737373', band: '#f7f7f7', rule: '#e0e0e0',
+            lowBg: '#f6e3e1', lowInk: '#b3261e', midBg: '#ececec', midInk: '#4a4a4a', hiBg: '#ffffff', hiInk: '#262626', callBg: '#f3f3f3' };
   sh.setName(DATA).setTabColor(DARK);
   sh.setRightToLeft(true);
   if (sh.getMaxColumns() < N) sh.insertColumnsAfter(sh.getMaxColumns(), N - sh.getMaxColumns());
