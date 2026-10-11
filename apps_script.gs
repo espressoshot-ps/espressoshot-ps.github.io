@@ -109,7 +109,7 @@ function styleResponses_(sh) {
   sh.getRange(1, 1, 1, 2).merge().setValue(
     SpreadsheetApp.newCellImage().setSourceUrl(LOGO_URL).setAltTextTitle('ESPRESSO SHOT').build());
   var title = 'ردود الزبائن', sub = 'كل رد جديد بيظهر هون تلقائياً';
-  sh.getRange(1, 3, 1, 5).merge().setHorizontalAlignment('right').setWrap(true)
+  sh.getRange(1, 3, 1, 5).merge().setHorizontalAlignment('right').setVerticalAlignment('middle').setWrap(true)
     .setRichTextValue(SpreadsheetApp.newRichTextValue().setText(title + '\n' + sub)
       .setTextStyle(0, title.length, SpreadsheetApp.newTextStyle().setFontSize(16).setBold(true).setForegroundColor(P.headInk).build())
       .setTextStyle(title.length + 1, title.length + 1 + sub.length, SpreadsheetApp.newTextStyle().setFontSize(10).setForegroundColor(P.muted).build())
