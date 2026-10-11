@@ -39,6 +39,15 @@ select:focus,textarea:focus,input[type="text"]:focus,input[type="tel"]:focus{out
 textarea{resize:vertical;min-height:78px}
 .consent{display:flex;gap:9px;align-items:flex-start;margin-top:14px;font-size:13px;line-height:1.6;color:var(--ink)}
 .consent input{margin-top:4px;accent-color:var(--accent)}
+.choices{flex-wrap:wrap}.choices .rate{flex:1 1 calc(50% - 4px)}.choices .rate span{min-height:48px;padding:6px 10px;text-align:center;line-height:1.4;font-weight:500}
+.sub{margin-top:16px}.sub .label{font-size:15px}
+.field-error{margin:6px 0 0;color:var(--warn);font-size:13px}
+input[aria-invalid="true"]{border-color:var(--warn)}
+.install{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:4px;background:var(--soft)}
+.install p{margin:0 0 10px;font-size:14px}
+.stores{display:flex;flex-wrap:wrap;gap:8px}
+.store{flex:1 1 140px;display:block;text-align:center;padding:11px 12px;border-radius:2px;background:var(--strong);color:var(--strong-ink);text-decoration:none;font-weight:500;direction:ltr}
+.store:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .trap{position:absolute;width:1px;height:1px;padding:0;border:0;margin:-1px;overflow:hidden;clip-path:inset(50%);opacity:0;pointer-events:none}
 .error{margin:14px 0 0;padding:11px 13px;border-radius:4px;background:var(--warn-soft);color:var(--warn);font-size:14px;line-height:1.7}
 .submit{width:100%;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:inherit;font-size:16px;font-weight:500;padding:14px;border-radius:2px;margin-top:18px;cursor:pointer}
@@ -59,7 +68,11 @@ textarea{resize:vertical;min-height:78px}
 <div class="field"><span class="label">كيف بتقيّم نظافة المكان؟</span><div class="ratings" role="radiogroup" aria-label="نظافة المكان"><label class="rate"><input type="radio" name="clean" value="1" required><span>1</span></label><label class="rate"><input type="radio" name="clean" value="2"><span>2</span></label><label class="rate"><input type="radio" name="clean" value="3"><span>3</span></label><label class="rate"><input type="radio" name="clean" value="4"><span>4</span></label><label class="rate"><input type="radio" name="clean" value="5"><span>5</span></label></div><div class="scale"><span>بحاجة لتحسين</span><span>ممتاز</span></div></div>
 <div class="field"><span class="label">كيف كانت تجربتك بشكل عام؟</span><div class="ratings" role="radiogroup" aria-label="التجربة العامة"><label class="rate"><input type="radio" name="overall" value="1" required><span>1</span></label><label class="rate"><input type="radio" name="overall" value="2"><span>2</span></label><label class="rate"><input type="radio" name="overall" value="3"><span>3</span></label><label class="rate"><input type="radio" name="overall" value="4"><span>4</span></label><label class="rate"><input type="radio" name="overall" value="5"><span>5</span></label></div><div class="scale"><span>بحاجة لتحسين</span><span>ممتاز</span></div></div>
 <div class="field"><label class="label" for="note">شو بتحب تقترح علينا؟ <span class="optional">(اختياري)</span></label><textarea id="note" placeholder="اكتب ملاحظتك أو اقتراحك هنا"></textarea></div>
-<div class="field"><span class="label">عندك مشكلة وبتحب نتواصل معك؟ <span class="optional">(اختياري)</span></span><p class="optional hint">اترك اسمك ورقمك، وفريقنا بتواصل معك بخصوص ملاحظتك.</p><label for="customerName" class="optional">الاسم</label><input id="customerName" name="customerName" type="text" autocomplete="name" placeholder="اسمك"><label for="customerPhone" class="optional">رقم الهاتف</label><input id="customerPhone" name="customerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="05X XXX XXXX"><label class="consent"><input id="contactConsent" type="checkbox"><span>أوافق أن يتواصل معي فريق ESPRESSO SHOT®️ بخصوص ملاحظتي.</span></label></div>
+<div class="field"><span class="label">عندك مشكلة وبتحب نتواصل معك؟ <span class="optional">(اختياري)</span></span><p class="optional hint">اترك اسمك ورقمك، وفريقنا بتواصل معك بخصوص ملاحظتك.</p><label for="customerName" class="optional">الاسم</label><input id="customerName" name="customerName" type="text" autocomplete="name" placeholder="اسمك"><label for="customerPhone" class="optional">رقم الهاتف</label><input id="customerPhone" name="customerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="05X XXX XXXX" aria-describedby="phoneError"><p id="phoneError" class="field-error" hidden>رقم الجوال مش صحيح. اكتبه هيك: 0599123456</p><label class="consent"><input id="contactConsent" type="checkbox"><span>أوافق أن يتواصل معي فريق ESPRESSO SHOT®️ بخصوص ملاحظتي.</span></label></div>
+<div class="field"><span class="label">جرّبت تطبيق ESPRESSO SHOT؟</span><div class="ratings choices" role="radiogroup" aria-label="تجربة التطبيق"><label class="rate"><input type="radio" name="app" value="yes" required><span>آه، جرّبته</span></label><label class="rate"><input type="radio" name="app" value="no"><span>لا، لسّا</span></label></div>
+<div id="appYes" class="sub" hidden><span class="label">كيف كانت تجربتك مع التطبيق؟</span><div class="ratings" role="radiogroup" aria-label="تقييم التطبيق"><label class="rate"><input type="radio" name="appRating" value="1"><span>1</span></label><label class="rate"><input type="radio" name="appRating" value="2"><span>2</span></label><label class="rate"><input type="radio" name="appRating" value="3"><span>3</span></label><label class="rate"><input type="radio" name="appRating" value="4"><span>4</span></label><label class="rate"><input type="radio" name="appRating" value="5"><span>5</span></label></div><div class="scale"><span>بحاجة لتحسين</span><span>ممتاز</span></div><label class="label sub" for="appNote">شو عجبك فيه، وشو ناقصه؟ <span class="optional">(اختياري)</span></label><textarea id="appNote" placeholder="رأيك بالتطبيق"></textarea></div>
+<div id="appNo" class="sub" hidden><span class="label">ليش لا؟</span><div class="ratings choices" role="radiogroup" aria-label="سبب عدم تجربة التطبيق"><label class="rate"><input type="radio" name="appWhy" value="ما كنت بعرف عنه"><span>ما كنت بعرف عنه</span></label><label class="rate"><input type="radio" name="appWhy" value="ما عندي مساحة على جوالي"><span>ما عندي مساحة على جوالي</span></label><label class="rate"><input type="radio" name="appWhy" value="بفضّل أطلب عالكاونتر"><span>بفضّل أطلب عالكاونتر</span></label><label class="rate"><input type="radio" name="appWhy" value="سبب ثاني"><span>سبب ثاني</span></label></div><label class="label sub" for="appWhyNote">بتحب تحكيلنا أكثر؟ <span class="optional">(اختياري)</span></label><textarea id="appWhyNote" placeholder="اكتب السبب هون"></textarea>
+<div id="install" class="install" hidden><p>جرّبه، ونزّله من هون:</p><div class="stores"><a id="iosLink" class="store" target="_blank" rel="noopener" hidden>App Store</a><a id="androidLink" class="store" target="_blank" rel="noopener" hidden>Google Play</a></div></div></div></div>
 <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="trap">
 <p id="formError" class="error" role="alert" hidden></p>
 <button class="submit" id="submitBtn" type="submit">إرسال التقييم</button>
@@ -69,18 +82,38 @@ textarea{resize:vertical;min-height:78px}
 <script>
 // ضع هنا رابط Google Apps Script (ينتهي بـ /exec)
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbyn9lIWM79NCVdnwO3Q7VTU7eYcjvJsS4AT2DZTWiQs5Sfe4RGsLhUhe6gDptVnS3-D/exec";
+// روابط تنزيل تطبيق ESPRESSO SHOT (اتركها فاضية لإخفاء الزر)
+const APP_STORE_URL = "";
+const GOOGLE_PLAY_URL = "";
 
 const form=document.getElementById('survey'),btn=document.getElementById('submitBtn'),errBox=document.getElementById('formError');
 function showError(msg){errBox.textContent=msg;errBox.hidden=false;}
 function picked(n){const el=form.querySelector('input[name="'+n+'"]:checked');return el?el.value:'';}
+// Palestinian/Israeli mobile numbers -> 05XXXXXXXX, or null if not valid
+function normPhone(raw){
+  let s=String(raw||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[\s\-().]/g,'');
+  if(s.startsWith('+'))s='00'+s.slice(1);
+  let m=s.match(/^(?:00)?(?:970|972)(5\d{8})$/); if(m)s='0'+m[1];
+  if(/^5\d{8}$/.test(s))s='0'+s;
+  return /^05[012345689]\d{7}$/.test(s)?s:null;
+}
+const phoneEl=document.getElementById('customerPhone'),phoneErr=document.getElementById('phoneError');
+function checkPhone(){const v=phoneEl.value.trim();const ok=!v||!!normPhone(v);phoneErr.hidden=ok;phoneEl.setAttribute('aria-invalid',ok?'false':'true');return ok;}
+phoneEl.addEventListener('blur',checkPhone);
+phoneEl.addEventListener('input',()=>{if(!phoneErr.hidden)checkPhone();});
+
+[['iosLink',APP_STORE_URL],['androidLink',GOOGLE_PLAY_URL]].forEach(([id,u])=>{if(u){const a=document.getElementById(id);a.href=u;a.hidden=false;document.getElementById('install').hidden=false;}});
+form.querySelectorAll('input[name="app"]').forEach(r=>r.addEventListener('change',()=>{const v=picked('app');document.getElementById('appYes').hidden=v!=='yes';document.getElementById('appNo').hidden=v!=='no';}));
+
 form.addEventListener('submit',async function(e){
   e.preventDefault();errBox.hidden=true;
   const name=document.getElementById('customerName'),phone=document.getElementById('customerPhone'),consent=document.getElementById('contactConsent');
   const hasContact=name.value.trim()||phone.value.trim();
   if(hasContact&&!consent.checked){showError('لطفًا وافق على التواصل معنا بخصوص ملاحظتك حتى نستخدم بيانات التواصل.');consent.focus();return}
   if(consent.checked&&(!name.value.trim()||!phone.value.trim())){showError('للتواصل معك، أدخل اسمك ورقم هاتفك.');(!name.value.trim()?name:phone).focus();return}
+  if(phone.value.trim()&&!checkPhone()){showError('رقم الجوال مش صحيح. اكتبه هيك: 0599123456');phone.focus();return}
   if(!/^https:\/\//.test(ENDPOINT)){showError('النموذج غير مفعّل بعد. لطفًا بلّغ أحد الموظفين.');return}
-  const data={branch:document.getElementById('branch').value,quality:picked('quality'),speed:picked('speed'),clean:picked('clean'),overall:picked('overall'),note:document.getElementById('note').value.trim(),name:name.value.trim(),phone:phone.value.trim(),consent:consent.checked,website:document.getElementById('website').value};
+  const data={branch:document.getElementById('branch').value,quality:picked('quality'),speed:picked('speed'),clean:picked('clean'),overall:picked('overall'),note:document.getElementById('note').value.trim(),name:name.value.trim(),phone:normPhone(phone.value)||'',consent:consent.checked,app:picked('app'),appRating:picked('app')==='yes'?picked('appRating'):'',appNote:picked('app')==='yes'?document.getElementById('appNote').value.trim():'',appWhy:picked('app')==='no'?picked('appWhy'):'',appWhyNote:picked('app')==='no'?document.getElementById('appWhyNote').value.trim():'',website:document.getElementById('website').value};
   btn.disabled=true;btn.textContent='جاري الإرسال...';
   try{
     const res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});

@@ -2,7 +2,17 @@
 // Paste this in: Sheet > Extensions > Apps Script, then Deploy > New deployment > Web app
 // Execute as: Me   |   Who has access: Anyone
 
-var HEADERS = ['التاريخ', 'الفرع', 'جودة الطلب', 'سرعة الخدمة', 'النظافة', 'التجربة العامة', 'الملاحظة', 'الاسم', 'الهاتف', 'موافقة التواصل'];
+var HEADERS = ['التاريخ', 'الفرع', 'جودة الطلب', 'سرعة الخدمة', 'النظافة', 'التجربة العامة', 'الملاحظة', 'الاسم', 'الهاتف', 'موافقة التواصل', 'جرّب التطبيق', 'تقييم التطبيق', 'سبب عدم التجربة', 'رأيه بالتطبيق'];
+
+// Palestinian/Israeli mobile -> 05XXXXXXXX, or '' if not valid
+function normPhone_(raw) {
+  var s = String(raw == null ? '' : raw).replace(/[\s\-().]/g, '');
+  if (s.charAt(0) === '+') s = '00' + s.slice(1);
+  var m = s.match(/^(?:00)?(?:970|972)(5\d{8})$/);
+  if (m) s = '0' + m[1];
+  if (/^5\d{8}$/.test(s)) s = '0' + s;
+  return /^05[012345689]\d{7}$/.test(s) ? s : '';
+}
 
 function clean(v, max) {
   var s = String(v == null ? '' : v).slice(0, max);
@@ -31,9 +41,14 @@ function doPost(e) {
     sheet.appendRow([
       new Date(), clean(d.branch, 60),
       rating(d.quality), rating(d.speed), rating(d.clean), rating(d.overall),
-      clean(d.note, 1500), clean(d.name, 80), clean(d.phone, 30),
-      d.consent === true ? 'نعم' : 'لا'
+      clean(d.note, 1500), clean(d.name, 80), normPhone_(d.phone) ? "'" + normPhone_(d.phone) : '',
+      d.consent === true ? 'نعم' : 'لا',
+      d.app === 'yes' ? 'نعم' : (d.app === 'no' ? 'لا' : ''),
+      d.app === 'yes' ? rating(d.appRating) : '',
+      d.app === 'no' ? clean(d.appWhy, 60) : '',
+      clean(d.app === 'yes' ? d.appNote : d.appWhyNote, 1000)
     ]);
+    sheet.getRange(sheet.getLastRow(), 1).setNumberFormat('dd/mm/yyyy  hh:mm');
     return reply({ ok: true });
   } catch (err) {
     return reply({ ok: false, error: String(err) });
@@ -69,6 +84,8 @@ function styleResponses_(sh) {
   sh.setName(DATA).setTabColor(DARK);
   sh.setRightToLeft(true);
   if (sh.getLastRow() === 0) sh.appendRow(HEADERS);
+  if (sh.getMaxColumns() < N) sh.insertColumnsAfter(sh.getMaxColumns(), N - sh.getMaxColumns());
+  sh.getRange(1, 1, 1, N).setValues([HEADERS]);
   if (sh.getMaxColumns() > N) sh.deleteColumns(N + 1, sh.getMaxColumns() - N);
   var rows = sh.getMaxRows(), body = rows - 1;
   sh.getBandings().forEach(function (b) { b.remove(); });
@@ -80,7 +97,7 @@ function styleResponses_(sh) {
   sh.getRange(1, 1, 1, N).setBackground(DARK).setFontColor('#ffffff').setFontWeight('bold');
   sh.setFrozenRows(1);
   sh.setRowHeight(1, 46);
-  [150, 120, 135, 140, 120, 150, 460, 150, 140, 160].forEach(function (w, i) { sh.setColumnWidth(i + 1, w); });
+  [150, 120, 135, 140, 120, 150, 460, 150, 140, 160, 130, 130, 200, 320].forEach(function (w, i) { sh.setColumnWidth(i + 1, w); });
 
   sh.getRange(2, 1, body, 1).setNumberFormat('dd/mm/yyyy  hh:mm').setFontColor(MUTED).setFontSize(10);
   sh.getRange(2, 2, body, 1).setFontWeight('bold');
@@ -88,22 +105,28 @@ function styleResponses_(sh) {
   sh.getRange(2, 7, body, 1).setHorizontalAlignment('right').setWrap(true);
   sh.getRange(2, 8, body, 1).setHorizontalAlignment('right');
   sh.getRange(2, 9, body, 1).setNumberFormat('@');
+  sh.getRange(2, 12, body, 1).setFontWeight('bold').setFontSize(12);
+  sh.getRange(2, 13, body, 2).setHorizontalAlignment('right');
+  sh.getRange(2, 14, body, 1).setWrap(true);
   sh.setRowHeights(2, body, 42);
   sh.setHiddenGridlines(true);
 
-  var ratings = sh.getRange(2, 3, body, 4), contact = sh.getRange(2, 8, body, 3);
+  var ratings = sh.getRange(2, 3, body, 4), contact = sh.getRange(2, 8, body, 3), appR = sh.getRange(2, 12, body, 1);
   sh.setConditionalFormatRules([
     rule_('=AND(ISNUMBER(C2),C2<=2)', '#fbeceb', RED, ratings),
     rule_('=AND(ISNUMBER(C2),C2=3)', '#fff6dd', '#7a5a00', ratings),
     rule_('=AND(ISNUMBER(C2),C2>=4)', '#eaf3ec', '#1e6b3a', ratings),
-    rule_('=$J2="نعم"', '#fff6dd', INK, contact)
+    rule_('=$J2="نعم"', '#fff6dd', INK, contact),
+    rule_('=AND(ISNUMBER(L2),L2<=2)', '#fbeceb', RED, appR),
+    rule_('=AND(ISNUMBER(L2),L2=3)', '#fff6dd', '#7a5a00', appR),
+    rule_('=AND(ISNUMBER(L2),L2>=4)', '#eaf3ec', '#1e6b3a', appR)
   ]);
   sh.getRange(1, 1, rows, N).createFilter();
 }
 
 function buildDashboard_(ss) {
   var sm = ss.getSheetByName(SUM) || ss.insertSheet(SUM, 1);
-  var C = 9, R = 30, q = "'" + DATA + "'!";
+  var C = 9, R = 35, q = "'" + DATA + "'!";
   if (sm.getMaxColumns() < C) sm.insertColumnsAfter(sm.getMaxColumns(), C - sm.getMaxColumns());
   if (sm.getMaxColumns() > C) sm.deleteColumns(C + 1, sm.getMaxColumns() - C);
   if (sm.getMaxRows() < R) sm.insertRowsAfter(sm.getMaxRows(), R - sm.getMaxRows());
@@ -196,6 +219,20 @@ function buildDashboard_(ss) {
   sm.getRange(24, 8, 5, 1).setFontColor(MUTED);
   sm.getRange(24, 9, 5, 1).setNumberFormat('dd/mm  hh:mm').setFontColor(MUTED).setFontSize(10);
   sm.getRange(24, 2, 5, 8).setBorder(null, null, true, null, null, true, LINE, SOLID);
+
+  // App section
+  sm.getRange(30, 2, 1, 8).merge().setValue('تطبيق ESPRESSO SHOT').setFontSize(13).setFontWeight('bold').setHorizontalAlignment('right');
+  var appRows = [
+    ['جرّبوا التطبيق', '=COUNTIF(' + q + 'K2:K,"نعم")&" من "&COUNTA(' + q + 'K2:K)', '@'],
+    ['متوسط تقييم التطبيق (من 5)', '=IFERROR(AVERAGE(' + q + 'L2:L),"—")', '0.0'],
+    ['أكثر سبب لعدم التجربة', '=IFERROR(INDEX(QUERY({' + q + 'M2:M},"select Col1, count(Col1) where Col1 <> \'\' group by Col1 order by count(Col1) desc limit 1",0),2,1),"—")', '@']
+  ];
+  appRows.forEach(function (a, i) {
+    var r = 31 + i;
+    sm.getRange(r, 2, 1, 3).merge().setValue(a[0]).setHorizontalAlignment('right').setFontColor(MUTED);
+    sm.getRange(r, 5, 1, 5).merge().setFormula(a[1]).setNumberFormat(a[2]).setHorizontalAlignment('right').setFontWeight('bold').setFontSize(13);
+  });
+  sm.getRange(31, 2, 3, 8).setBorder(null, null, true, null, null, true, LINE, SOLID);
 
   sm.setConditionalFormatRules([
     SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=AND(ISNUMBER(E10),E10<3)')
