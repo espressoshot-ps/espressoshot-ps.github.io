@@ -106,7 +106,8 @@ function styleResponses_(sh) {
 
   // Banner
   sh.setRowHeight(1, 84);
-  sh.getRange(1, 1, 1, 2).merge().setFormula('=IMAGE("' + LOGO_URL + '",1)');
+  sh.getRange(1, 1, 1, 2).merge().setValue(
+    SpreadsheetApp.newCellImage().setSourceUrl(LOGO_URL).setAltTextTitle('ESPRESSO SHOT').build());
   var title = 'ردود الزبائن', sub = 'كل رد جديد بيظهر هون تلقائياً';
   sh.getRange(1, 3, 1, 5).merge().setHorizontalAlignment('right').setWrap(true)
     .setRichTextValue(SpreadsheetApp.newRichTextValue().setText(title + '\n' + sub)
