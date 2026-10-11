@@ -151,124 +151,149 @@ function styleResponses_(sh) {
   sh.getRange(2, 1, rows - 1, N).createFilter();
 }
 
-// Dashboard on one screen: a title, four tiles, then four boxed cards in a 2x2 grid.
-// RTL, so the right column (B:I) reads first: branches, then latest notes. Left column (K:R): rating spread, then the app.
+// Dashboard: white cards on a light grey canvas, one screen tall.
+// Grid (RTL): B..I = right card column, J = gap, K..R = left card column. B, I, K, R are 14px inner padding.
 function buildDashboard_(ss) {
   var sm = ss.getSheetByName(SUM) || ss.insertSheet(SUM, 1);
-  var C = 18, R = 19, q = "'" + DATA + "'!";
+  var C = 19, R = 34, q = "'" + DATA + "'!";
+  var CANVAS = '#f3f3f3', CARD = '#ffffff', HAIR = '#ececec';
   if (sm.getMaxColumns() < C) sm.insertColumnsAfter(sm.getMaxColumns(), C - sm.getMaxColumns());
   if (sm.getMaxColumns() > C) sm.deleteColumns(C + 1, sm.getMaxColumns() - C);
   if (sm.getMaxRows() < R) sm.insertRowsAfter(sm.getMaxRows(), R - sm.getMaxRows());
   if (sm.getMaxRows() > R) sm.deleteRows(R + 1, sm.getMaxRows() - R);
+  sm.getCharts().forEach(function (ch) { sm.removeChart(ch); });
   var all = sm.getRange(1, 1, R, C);
   all.breakApart();
   sm.clear();
   sm.clearConditionalFormatRules();
   sm.setRightToLeft(true).setTabColor(DARK).setHiddenGridlines(true).setFrozenRows(0);
-  all.setFontFamily(FONT).setFontSize(10).setFontColor(INK).setVerticalAlignment('middle').setHorizontalAlignment('center').setBackground('#ffffff');
-  sm.setColumnWidth(1, 16);
-  for (var c = 2; c <= C; c++) sm.setColumnWidth(c, 80);
-  sm.setColumnWidth(10, 28);
-  var H = { 1: 6, 2: 32, 3: 6, 4: 20, 5: 38, 6: 16, 7: 24, 8: 26, 9: 26, 10: 26, 11: 26, 12: 26, 13: 16, 14: 24, 15: 26, 16: 28, 17: 28, 18: 28, 19: 8 };
-  for (var r = 1; r <= R; r++) sm.setRowHeight(r, H[r]);
-  var SOLID = SpreadsheetApp.BorderStyle.SOLID, THICK = SpreadsheetApp.BorderStyle.SOLID_THICK;
-  var RIGHT = 2, LEFT = 11;   // first column of each card column, 8 columns wide
-  var title = function (row, col, text) {
-    sm.getRange(row, col, 1, 8).merge().setValue(text).setFontSize(11).setFontWeight('bold').setHorizontalAlignment('right').setVerticalAlignment('bottom');
+  all.setFontFamily(FONT).setFontSize(10).setFontColor(INK).setVerticalAlignment('middle').setHorizontalAlignment('center')
+     .setBackground(CANVAS).setBorder(false, false, false, false, false, false);
+
+  var W = { 1: 20, 2: 14, 9: 14, 10: 20, 11: 14, 18: 14, 19: 20 };
+  for (var c = 1; c <= C; c++) sm.setColumnWidth(c, W[c] || 102);
+  var H = { 1: 10, 2: 46, 3: 10, 4: 22, 5: 38, 6: 10, 7: 30, 8: 24, 9: 26, 10: 26, 11: 26, 12: 26, 13: 8,
+            14: 10, 15: 30, 16: 24, 17: 26, 18: 26, 19: 26, 20: 8, 21: 10 };
+  for (var r = 1; r <= R; r++) sm.setRowHeight(r, H[r] || 20);
+
+  var box = function (r1, c1, rows, cols) { return sm.getRange(r1, c1, rows, cols).setBackground(CARD); };
+  var cardTitle = function (row, col, text, sub) {
+    var t = text + (sub ? '   ' + sub : '');
+    var rt = SpreadsheetApp.newRichTextValue().setText(t)
+      .setTextStyle(0, text.length, SpreadsheetApp.newTextStyle().setBold(true).setFontSize(12).setForegroundColor(INK).build());
+    if (sub) rt.setTextStyle(text.length + 3, t.length, SpreadsheetApp.newTextStyle().setFontSize(9).setForegroundColor(MUTED).build());
+    sm.getRange(row, col, 1, 6).merge().setRichTextValue(rt.build()).setHorizontalAlignment('right').setVerticalAlignment('bottom');
   };
-  var card = function (row, col, rows) {   // dark header row + body rows, boxed
-    sm.getRange(row, col, 1, 8).setBackground(DARK).setFontColor('#ffffff').setFontWeight('bold');
-    sm.getRange(row + 1, col, rows, 8).setBorder(null, null, null, null, null, true, LINE, SOLID);
-    sm.getRange(row, col, rows + 1, 8).setBorder(true, true, true, true, null, null, '#cfcfcf', SOLID);
+  var colHead = function (row, col, n) {
+    sm.getRange(row, col, 1, n).setFontColor(MUTED).setFontSize(9).setFontWeight('bold')
+      .setBorder(null, null, true, null, null, null, LINE, SpreadsheetApp.BorderStyle.SOLID);
+  };
+  var hairlines = function (row, col, rows, n) {
+    sm.getRange(row, col, rows, n).setBorder(null, null, true, null, null, true, HAIR, SpreadsheetApp.BorderStyle.SOLID);
   };
 
-  // Title
-  sm.getRange(2, 2, 1, 4).merge().setValue('ESPRESSO SHOT').setFontFamily('Jost').setFontSize(18).setFontColor('#4a4a4a').setHorizontalAlignment('right');
-  sm.getRange(2, 6, 1, 13).merge().setValue('ملخص تقييمات الزبائن · يتحدّث تلقائياً مع كل رد جديد').setFontColor(MUTED).setHorizontalAlignment('right');
+  // Header card: logo, page name, time of the latest response
+  box(2, 2, 1, 17);
+  sm.getRange(2, 3, 1, 2).merge().setValue(SpreadsheetApp.newCellImage().setSourceUrl(LOGO_URL).setAltTextTitle('ESPRESSO SHOT').build());
+  sm.getRange(2, 5, 1, 9).merge().setRichTextValue(SpreadsheetApp.newRichTextValue().setText('لوحة تقييمات الزبائن')
+    .setTextStyle(SpreadsheetApp.newTextStyle().setBold(true).setFontSize(14).setForegroundColor(INK).build()).build())
+    .setHorizontalAlignment('right');
+  sm.getRange(2, 14, 1, 4).merge().setFormula('=IFERROR("آخر رد  " & TEXT(MAX(' + q + 'A3:A),"dd/mm  hh:mm"),"")')
+    .setFontColor(MUTED).setFontSize(9).setHorizontalAlignment('left');
 
-  // Four tiles, two over each card column
-  [['عدد الردود', '=COUNTA(' + q + 'B3:B)', '0', RIGHT],
-   ['متوسط التجربة العامة (من 5)', '=IFERROR(AVERAGE(' + q + 'F3:F),"—")', '0.0', RIGHT + 4],
-   ['طلبوا التواصل معهم', '=COUNTIF(' + q + 'J3:J,"نعم")', '0', LEFT],
-   ['تقييم عام 2 أو أقل', '=COUNTIF(' + q + 'F3:F,"<=2")', '0', LEFT + 4]
+  // KPI cards
+  [['عدد الردود', '=COUNTA(' + q + 'B3:B)', '0', 2],
+   ['متوسط التجربة العامة', '=IFERROR(AVERAGE(' + q + 'F3:F),"—")', '0.0" / 5"', 6],
+   ['طلبوا نتواصل معهم', '=COUNTIF(' + q + 'J3:J,"نعم")', '0', 11],
+   ['تقييمات منخفضة (1–2)', '=COUNTIF(' + q + 'F3:F,"<=2")', '0', 15]
   ].forEach(function (t) {
-    sm.getRange(4, t[3], 1, 4).merge().setValue(t[0]).setFontColor(MUTED).setVerticalAlignment('bottom');
-    sm.getRange(5, t[3], 1, 4).merge().setFormula(t[1]).setNumberFormat(t[2]).setFontSize(20);
-    sm.getRange(4, t[3], 2, 4).setBackground(SOFT).setBorder(true, true, true, true, null, null, '#ffffff', THICK);
+    box(4, t[3], 2, 4);
+    sm.getRange(4, t[3], 1, 4).merge().setValue(t[0]).setFontColor(MUTED).setFontSize(9).setVerticalAlignment('bottom');
+    sm.getRange(5, t[3], 1, 4).merge().setFormula(t[1]).setNumberFormat(t[2]).setFontSize(22).setFontColor(INK);
+    sm.getRange(4, t[3], 2, 4).setBorder(true, true, true, true, null, null, CANVAS, SpreadsheetApp.BorderStyle.SOLID_THICK);
   });
 
-  // Card 1 (right, top): by branch — header row 8, rows 9-12
-  title(7, RIGHT, 'حسب الفرع');
-  sm.getRange(8, 2, 1, 2).merge().setValue('الفرع');
-  sm.getRange(8, 4, 1, 6).setValues([['الردود', 'الجودة', 'السرعة', 'النظافة', 'العامة', 'من 5']]);
+  // Card 1 (right, top): by branch
+  box(7, 2, 7, 8);
+  cardTitle(7, 3, 'حسب الفرع', 'متوسط من 5');
+  sm.getRange(8, 3, 1, 6).setValues([['الفرع', 'الردود', 'الجودة', 'السرعة', 'النظافة', 'التجربة العامة']]);
+  sm.getRange(8, 3).setHorizontalAlignment('right');
+  colHead(8, 3, 6);
   BRANCHES.concat(['كل الفروع']).forEach(function (b, i) {
     var r = 9 + i, isTotal = i === BRANCHES.length;
-    sm.getRange(r, 2, 1, 2).merge().setValue(b).setFontWeight('bold').setHorizontalAlignment('right');
-    sm.getRange(r, 4).setFormula(isTotal ? '=COUNTA(' + q + 'B3:B)' : '=COUNTIF(' + q + '$B$3:$B,$B' + r + ')');
+    sm.getRange(r, 3).setValue(b).setFontWeight('bold').setHorizontalAlignment('right');
+    sm.getRange(r, 4).setFormula(isTotal ? '=COUNTA(' + q + 'B3:B)' : '=COUNTIF(' + q + '$B$3:$B,$C' + r + ')').setFontColor(MUTED);
     ['C', 'D', 'E', 'F'].forEach(function (col, k) {
       var rng = q + col + '3:' + col;
       sm.getRange(r, 5 + k).setFormula(isTotal ? '=IFERROR(AVERAGE(' + rng + '),"—")'
-        : '=IFERROR(AVERAGEIF(' + q + '$B$3:$B,$B' + r + ',' + rng + '),"—")');
+        : '=IFERROR(AVERAGEIF(' + q + '$B$3:$B,$C' + r + ',' + rng + '),"—")');
     });
-    sm.getRange(r, 9).setFormula('=IF(ISNUMBER(H' + r + '),REPT("●",ROUND(H' + r + '))&REPT("○",5-ROUND(H' + r + ')),"")').setFontColor('#4a4a4a').setFontSize(11);
-    if (isTotal) sm.getRange(r, 2, 1, 8).setBackground('#ececec').setFontWeight('bold');
+    if (isTotal) sm.getRange(r, 3, 1, 6).setFontWeight('bold').setBorder(true, null, null, null, null, null, LINE, SpreadsheetApp.BorderStyle.SOLID);
   });
   sm.getRange(9, 5, 4, 4).setNumberFormat('0.0');
-  card(8, RIGHT, 4);
+  sm.getRange(9, 8, 4, 1).setFontWeight('bold').setFontSize(11);
+  hairlines(9, 3, 2, 6);
 
-  // Card 2 (left, top): spread of the overall rating — header row 8, rows 9-12
-  title(7, LEFT, 'توزيع التجربة العامة');
-  sm.getRange(8, 11, 1, 2).merge().setValue('التقييم');
-  sm.getRange(8, 13).setValue('العدد');
-  sm.getRange(8, 14, 1, 5).merge().setValue('النسبة');
-  [['5  ·  ممتاز', '=COUNTIF(' + q + 'F3:F,5)', '#4a4a4a'],
-   ['4  ·  جيد جداً', '=COUNTIF(' + q + 'F3:F,4)', '#4a4a4a'],
-   ['3  ·  مقبول', '=COUNTIF(' + q + 'F3:F,3)', '#9a9a9a'],
-   ['1 أو 2  ·  ضعيف', '=COUNTIF(' + q + 'F3:F,"<=2")', RED]
-  ].forEach(function (d, i) {
-    var r = 9 + i;
-    sm.getRange(r, 11, 1, 2).merge().setValue(d[0]).setHorizontalAlignment('right');
-    sm.getRange(r, 13).setFormula(d[1]).setFontWeight('bold');
-    sm.getRange(r, 14, 1, 5).merge().setFormula('=IF(M' + r + '>0,SPARKLINE(M' + r +
-      ',{"charttype","bar";"max",MAX($M$9:$M$12);"rtl",TRUE;"color1","' + d[2] + '"}),"")');
-  });
-  card(8, LEFT, 4);
+  // Card 2 (left, top): spread of the overall rating as a donut chart
+  box(7, 11, 7, 8);
+  cardTitle(7, 12, 'توزيع التجربة العامة', 'كم زبون أعطى كل تقييم');
+  var helper = sm.getRange(30, 3, 4, 2);   // chart data, kept out of sight below the dashboard
+  helper.setValues([['ممتاز · 5', ''], ['جيد جداً · 4', ''], ['مقبول · 3', ''], ['ضعيف · 1–2', '']]);
+  sm.getRange(30, 4).setFormula('=COUNTIF(' + q + 'F3:F,5)');
+  sm.getRange(31, 4).setFormula('=COUNTIF(' + q + 'F3:F,4)');
+  sm.getRange(32, 4).setFormula('=COUNTIF(' + q + 'F3:F,3)');
+  sm.getRange(33, 4).setFormula('=COUNTIF(' + q + 'F3:F,"<=2")');
+  helper.setFontColor(CANVAS);
+  sm.insertChart(sm.newChart().setChartType(Charts.ChartType.PIE).addRange(helper)
+    .setPosition(8, 12, 0, 2)
+    .setOption('pieHole', 0.62).setOption('pieSliceText', 'none')
+    .setOption('colors', ['#262626', '#737373', '#c4c4c4', RED])
+    .setOption('legend', { position: 'right', alignment: 'center', textStyle: { color: INK, fontSize: 11, fontName: FONT } })
+    .setOption('backgroundColor', CARD).setOption('pieSliceBorderColor', CARD)
+    .setOption('chartArea', { left: 8, top: 4, width: '92%', height: '94%' })
+    .setOption('tooltip', { textStyle: { fontName: FONT } })
+    .setOption('width', 600).setOption('height', 138)
+    .build());
 
-  // Card 3 (right, bottom): latest notes — header row 15, rows 16-18
-  title(14, RIGHT, 'آخر الملاحظات');
-  sm.getRange(15, 2).setValue('التقييم');
-  sm.getRange(15, 3, 1, 5).merge().setValue('الملاحظة').setHorizontalAlignment('right');
-  sm.getRange(15, 8, 1, 2).merge().setValue('الفرع · التاريخ');
+  // Card 3 (right, bottom): latest comments
+  box(15, 2, 6, 8);
+  cardTitle(15, 3, 'آخر الملاحظات', 'أحدث 3');
+  sm.getRange(16, 3).setValue('التقييم');
+  sm.getRange(16, 4, 1, 4).merge().setValue('الملاحظة').setHorizontalAlignment('right');
+  sm.getRange(16, 8).setValue('الفرع · اليوم');
+  colHead(16, 3, 6);
   var src = 'SORT(FILTER({' + q + 'A3:A,' + q + 'B3:B,' + q + 'F3:F,' + q + 'G3:G},' + q + 'G3:G<>""),1,FALSE)';
   var pick = function (n, k) { return 'INDEX(' + src + ',' + n + ',' + k + ')'; };
   for (var n = 1; n <= 3; n++) {
-    var row = 15 + n;
-    sm.getRange(row, 2).setFormula('=IFERROR(' + pick(n, 3) + ',"")').setNumberFormat('0').setFontWeight('bold').setFontSize(12);
-    sm.getRange(row, 3, 1, 5).merge().setFormula('=IFERROR(' + pick(n, 4) + ',"")').setHorizontalAlignment('right').setWrap(false);
-    sm.getRange(row, 8, 1, 2).merge().setFormula('=IFERROR(' + pick(n, 2) + '&"  ·  "&TEXT(' + pick(n, 1) + ',"dd/mm"),"")').setFontColor(MUTED);
+    var row = 16 + n;
+    sm.getRange(row, 3).setFormula('=IFERROR(' + pick(n, 3) + ',"")').setNumberFormat('0').setFontWeight('bold').setFontSize(12);
+    sm.getRange(row, 4, 1, 4).merge().setFormula('=IFERROR(' + pick(n, 4) + ',"")').setHorizontalAlignment('right').setWrap(false);
+    sm.getRange(row, 8).setFormula('=IFERROR(' + pick(n, 2) + '&" · "&TEXT(' + pick(n, 1) + ',"dd/mm"),"")').setFontColor(MUTED).setFontSize(9);
   }
-  card(15, RIGHT, 3);
+  hairlines(17, 3, 2, 6);
 
-  // Card 4 (left, bottom): the app — header row 15, rows 16-18
-  title(14, LEFT, 'تطبيق ESPRESSO SHOT');
-  sm.getRange(15, 11, 1, 4).merge().setValue('المؤشر').setHorizontalAlignment('right');
-  sm.getRange(15, 15, 1, 4).merge().setValue('القيمة');
-  [['نسبة اللي جرّبوا التطبيق', '=IFERROR(COUNTIF(' + q + 'K3:K,"نعم")/COUNTA(' + q + 'K3:K),"—")', '0%'],
-   ['متوسط تقييم التطبيق (من 5)', '=IFERROR(AVERAGE(' + q + 'L3:L),"—")', '0.0'],
+  // Card 4 (left, bottom): the app
+  box(15, 11, 6, 8);
+  cardTitle(15, 12, 'تطبيق ESPRESSO SHOT', 'من سؤال آخر الاستبيان');
+  sm.getRange(16, 12, 1, 3).merge().setValue('المؤشر').setHorizontalAlignment('right');
+  sm.getRange(16, 15, 1, 3).merge().setValue('القيمة').setHorizontalAlignment('left');
+  colHead(16, 12, 6);
+  [['جرّبوا التطبيق', '=IFERROR(COUNTIF(' + q + 'K3:K,"نعم")/COUNTA(' + q + 'K3:K),"—")', '0%'],
+   ['تقييم التطبيق', '=IFERROR(AVERAGE(' + q + 'L3:L),"—")', '0.0" / 5"'],
    ['أكثر سبب لعدم التجربة', '=IFERROR(INDEX(QUERY({' + q + 'M3:M},"select Col1, count(Col1) where Col1 <> \'\' group by Col1 order by count(Col1) desc limit 1",0),2,1),"—")', '@']
   ].forEach(function (a, i) {
-    var r = 16 + i;
-    sm.getRange(r, 11, 1, 4).merge().setValue(a[0]).setHorizontalAlignment('right').setFontColor(MUTED);
-    sm.getRange(r, 15, 1, 4).merge().setFormula(a[1]).setNumberFormat(a[2]).setFontWeight('bold').setFontSize(12);
+    var r = 17 + i;
+    sm.getRange(r, 12, 1, 3).merge().setValue(a[0]).setHorizontalAlignment('right').setFontColor(MUTED);
+    sm.getRange(r, 15, 1, 3).merge().setFormula(a[1]).setNumberFormat(a[2]).setHorizontalAlignment('left').setFontWeight('bold').setFontSize(12);
   });
-  card(15, LEFT, 3);
+  hairlines(17, 12, 2, 6);
 
   sm.setConditionalFormatRules([
     SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=AND(ISNUMBER(E9),E9<3)')
-      .setFontColor(RED).setBold(true).setRanges([sm.getRange(9, 5, 4, 4)]).build(),
+      .setFontColor(RED).setRanges([sm.getRange(9, 5, 4, 4)]).build(),
     SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=$O$5>0')
       .setFontColor(RED).setRanges([sm.getRange(5, 15, 1, 4)]).build(),
-    SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=AND(ISNUMBER($B16),$B16<=2)')
-      .setFontColor(RED).setRanges([sm.getRange(16, 2, 3, 1)]).build()
+    SpreadsheetApp.newConditionalFormatRule().whenFormulaSatisfied('=AND(ISNUMBER($C17),$C17<=2)')
+      .setFontColor(RED).setRanges([sm.getRange(17, 3, 3, 1)]).build()
   ]);
 }
