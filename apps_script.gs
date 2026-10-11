@@ -169,18 +169,18 @@ function buildDashboard_(ss) {
   sm.setColumnWidth(1, 16);
   for (var c = 2; c <= C; c++) sm.setColumnWidth(c, 80);
   sm.setColumnWidth(10, 24);
-  var H = { 1: 10, 2: 34, 3: 18, 4: 8, 5: 22, 6: 44, 7: 12, 8: 26, 9: 28, 10: 28, 11: 28, 12: 28, 13: 28, 14: 12, 15: 26, 16: 28, 17: 32, 18: 32, 19: 32, 20: 10, 21: 10 };
+  var H = { 1: 6, 2: 32, 3: 2, 4: 4, 5: 20, 6: 38, 7: 8, 8: 24, 9: 24, 10: 24, 11: 24, 12: 24, 13: 24, 14: 8, 15: 24, 16: 24, 17: 28, 18: 28, 19: 28, 20: 4, 21: 4 };
   for (var r = 1; r <= R; r++) sm.setRowHeight(r, H[r]);
   var SOLID = SpreadsheetApp.BorderStyle.SOLID, THICK = SpreadsheetApp.BorderStyle.SOLID_THICK;
   var title = function (row, col, n, text) {
-    sm.getRange(row, col, 1, n).merge().setValue(text).setFontSize(12).setFontWeight('bold').setHorizontalAlignment('right');
+    sm.getRange(row, col, 1, n).merge().setValue(text).setFontSize(11).setFontWeight('bold').setHorizontalAlignment('right').setVerticalAlignment('bottom');
   };
   var head = function (row, col, n) { sm.getRange(row, col, 1, n).setBackground(DARK).setFontColor('#ffffff').setFontWeight('bold'); };
   var lines = function (row, col, rows, n) { sm.getRange(row, col, rows, n).setBorder(null, null, true, null, null, true, LINE, SOLID); };
 
   // Title
-  sm.getRange(2, 2, 1, 8).merge().setValue('ESPRESSO SHOT').setFontFamily('Jost').setFontSize(20).setFontColor('#4a4a4a').setHorizontalAlignment('right');
-  sm.getRange(3, 2, 1, 8).merge().setValue('ملخص تقييمات الزبائن · يتحدّث تلقائياً مع كل رد جديد').setFontColor(MUTED).setHorizontalAlignment('right');
+  sm.getRange(2, 2, 1, 4).merge().setValue('ESPRESSO SHOT').setFontFamily('Jost').setFontSize(18).setFontColor('#4a4a4a').setHorizontalAlignment('right');
+  sm.getRange(2, 6, 1, 13).merge().setValue('ملخص تقييمات الزبائن · يتحدّث تلقائياً مع كل رد جديد').setFontColor(MUTED).setHorizontalAlignment('right');
 
   // Four tiles across both blocks
   [['عدد الردود', '=COUNTA(' + q + 'B3:B)', '0', 2],
@@ -189,7 +189,7 @@ function buildDashboard_(ss) {
    ['تقييم عام 2 أو أقل', '=COUNTIF(' + q + 'F3:F,"<=2")', '0', 15]
   ].forEach(function (t) {
     sm.getRange(5, t[3], 1, 4).merge().setValue(t[0]).setFontColor(MUTED).setVerticalAlignment('bottom');
-    sm.getRange(6, t[3], 1, 4).merge().setFormula(t[1]).setNumberFormat(t[2]).setFontSize(22);
+    sm.getRange(6, t[3], 1, 4).merge().setFormula(t[1]).setNumberFormat(t[2]).setFontSize(20);
     sm.getRange(5, t[3], 2, 4).setBackground(SOFT).setBorder(true, true, true, true, null, null, '#ffffff', THICK);
   });
 
@@ -236,7 +236,7 @@ function buildDashboard_(ss) {
   for (var n = 1; n <= 3; n++) {
     var row = 16 + n;
     sm.getRange(row, 2).setFormula('=IFERROR(' + pick(n, 3) + ',"")').setNumberFormat('0').setFontWeight('bold').setFontSize(12);
-    sm.getRange(row, 3, 1, 5).merge().setFormula('=IFERROR(' + pick(n, 4) + ',"")').setHorizontalAlignment('right').setWrap(true);
+    sm.getRange(row, 3, 1, 5).merge().setFormula('=IFERROR(' + pick(n, 4) + ',"")').setHorizontalAlignment('right').setWrap(false);
     sm.getRange(row, 8, 1, 2).merge().setFormula('=IFERROR(' + pick(n, 2) + '&"  ·  "&TEXT(' + pick(n, 1) + ',"dd/mm"),"")').setFontColor(MUTED);
   }
   lines(17, 2, 3, 8);
@@ -251,7 +251,9 @@ function buildDashboard_(ss) {
     sm.getRange(r, 11, 1, 4).merge().setValue(a[0]).setHorizontalAlignment('right').setFontColor(MUTED);
     sm.getRange(r, 15, 1, 4).merge().setFormula(a[1]).setNumberFormat(a[2]).setHorizontalAlignment('right').setFontWeight('bold').setFontSize(12);
   });
-  sm.getRange(16, 11, 1, 8).setBorder(null, null, true, null, null, null, DARK, SOLID);
+  sm.getRange(16, 11, 1, 4).merge().setValue('المؤشر').setHorizontalAlignment('right');
+  sm.getRange(16, 15, 1, 4).merge().setValue('القيمة').setHorizontalAlignment('right');
+  head(16, 11, 8);
   lines(17, 11, 3, 8);
 
   sm.setConditionalFormatRules([
