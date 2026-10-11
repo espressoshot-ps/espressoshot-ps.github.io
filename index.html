@@ -83,8 +83,8 @@ input[aria-invalid="true"]{border-color:var(--warn)}
 // ضع هنا رابط Google Apps Script (ينتهي بـ /exec)
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbyn9lIWM79NCVdnwO3Q7VTU7eYcjvJsS4AT2DZTWiQs5Sfe4RGsLhUhe6gDptVnS3-D/exec";
 // روابط تنزيل تطبيق ESPRESSO SHOT (اتركها فاضية لإخفاء الزر)
-const APP_STORE_URL = "";
-const GOOGLE_PLAY_URL = "";
+const APP_STORE_URL = "https://apps.apple.com/app/id6781716487";
+const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.espresso.shot";
 
 const form=document.getElementById('survey'),btn=document.getElementById('submitBtn'),errBox=document.getElementById('formError');
 function showError(msg){errBox.textContent=msg;errBox.hidden=false;}
@@ -102,7 +102,11 @@ function checkPhone(){const v=phoneEl.value.trim();const ok=!v||!!normPhone(v);p
 phoneEl.addEventListener('blur',checkPhone);
 phoneEl.addEventListener('input',()=>{if(!phoneErr.hidden)checkPhone();});
 
-[['iosLink',APP_STORE_URL],['androidLink',GOOGLE_PLAY_URL]].forEach(([id,u])=>{if(u){const a=document.getElementById(id);a.href=u;a.hidden=false;document.getElementById('install').hidden=false;}});
+// Show only the store that matches the visitor's phone; show both on a computer or unknown device
+const ua=navigator.userAgent||'';
+const isIOS=/iPhone|iPad|iPod/i.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+const isAndroid=/Android/i.test(ua);
+[['iosLink',APP_STORE_URL,!isAndroid],['androidLink',GOOGLE_PLAY_URL,!isIOS]].forEach(([id,u,show])=>{if(u&&show){const a=document.getElementById(id);a.href=u;a.hidden=false;document.getElementById('install').hidden=false;}});
 form.querySelectorAll('input[name="app"]').forEach(r=>r.addEventListener('change',()=>{const v=picked('app');document.getElementById('appYes').hidden=v!=='yes';document.getElementById('appNo').hidden=v!=='no';}));
 
 form.addEventListener('submit',async function(e){
