@@ -245,14 +245,12 @@ function buildDashboard_(ss) {
   sm.getRange(33, 4).setFormula('=COUNTIF(' + q + 'F3:F,"<=2")');
   helper.setFontColor(CANVAS);
   sm.insertChart(sm.newChart().setChartType(Charts.ChartType.PIE).addRange(helper)
-    .setPosition(8, 12, 0, 2)
-    .setOption('pieHole', 0.62).setOption('pieSliceText', 'none')
+    .setPosition(8, 12, 0, 0)
+    .setOption('pieHole', 0.6)
     .setOption('colors', ['#262626', '#737373', '#c4c4c4', RED])
-    .setOption('legend', { position: 'right', alignment: 'center', textStyle: { color: INK, fontSize: 11, fontName: FONT } })
-    .setOption('backgroundColor', CARD).setOption('pieSliceBorderColor', CARD)
-    .setOption('chartArea', { left: 8, top: 4, width: '92%', height: '94%' })
-    .setOption('tooltip', { textStyle: { fontName: FONT } })
-    .setOption('width', 600).setOption('height', 138)
+    .setOption('legend', { position: 'right' })
+    .setOption('pieSliceText', 'none')
+    .setOption('width', 600).setOption('height', 136)
     .build());
 
   // Card 3 (right, bottom): latest comments
