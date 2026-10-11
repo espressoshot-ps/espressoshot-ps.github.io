@@ -172,8 +172,8 @@ function buildDashboard_(ss) {
 
   var W = { 1: 20, 2: 14, 9: 14, 10: 20, 11: 14, 18: 14, 19: 20 };
   for (var c = 1; c <= C; c++) sm.setColumnWidth(c, W[c] || 102);
-  var H = { 1: 10, 2: 46, 3: 10, 4: 22, 5: 38, 6: 10, 7: 30, 8: 24, 9: 26, 10: 26, 11: 26, 12: 26, 13: 8,
-            14: 10, 15: 30, 16: 24, 17: 26, 18: 26, 19: 26, 20: 8, 21: 10 };
+  var H = { 1: 8, 2: 42, 3: 8, 4: 20, 5: 36, 6: 8, 7: 28, 8: 22, 9: 24, 10: 24, 11: 24, 12: 24, 13: 8,
+            14: 8, 15: 28, 16: 22, 17: 24, 18: 24, 19: 24, 20: 8, 21: 8 };
   for (var r = 1; r <= R; r++) sm.setRowHeight(r, H[r] || 20);
 
   var box = function (r1, c1, rows, cols) { return sm.getRange(r1, c1, rows, cols).setBackground(CARD); };
@@ -250,7 +250,7 @@ function buildDashboard_(ss) {
     .setOption('colors', ['#262626', '#737373', '#c4c4c4', RED])
     .setOption('legend', { position: 'right' })
     .setOption('pieSliceText', 'none')
-    .setOption('width', 600).setOption('height', 136)
+    .setOption('width', 600).setOption('height', 124)
     .build());
 
   // Card 3 (right, bottom): latest comments
