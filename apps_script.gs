@@ -224,7 +224,7 @@ function buildDashboard_(ss) {
   [['5  ·  ممتاز', '=COUNTIF(' + q + 'F3:F,5)', '#4a4a4a'],
    ['4  ·  جيد جداً', '=COUNTIF(' + q + 'F3:F,4)', '#4a4a4a'],
    ['3  ·  مقبول', '=COUNTIF(' + q + 'F3:F,3)', '#9a9a9a'],
-   ['1–2  ·  ضعيف', '=COUNTIF(' + q + 'F3:F,"<=2")', RED]
+   ['1 أو 2  ·  ضعيف', '=COUNTIF(' + q + 'F3:F,"<=2")', RED]
   ].forEach(function (d, i) {
     var r = 9 + i;
     sm.getRange(r, 11, 1, 2).merge().setValue(d[0]).setHorizontalAlignment('right');
