@@ -119,12 +119,22 @@ form.addEventListener('submit',async function(e){
   if(!/^https:\/\//.test(ENDPOINT)){showError('النموذج غير مفعّل بعد. لطفًا بلّغ أحد الموظفين.');return}
   const data={branch:document.getElementById('branch').value,quality:picked('quality'),speed:picked('speed'),clean:picked('clean'),overall:picked('overall'),note:document.getElementById('note').value.trim(),name:name.value.trim(),phone:normPhone(phone.value)||'',consent:consent.checked,app:picked('app'),appRating:picked('app')==='yes'?picked('appRating'):'',appNote:picked('app')==='yes'?document.getElementById('appNote').value.trim():'',appWhy:picked('app')==='no'?picked('appWhy'):'',appWhyNote:picked('app')==='no'?document.getElementById('appWhyNote').value.trim():'',website:document.getElementById('website').value};
   btn.disabled=true;btn.textContent='جاري الإرسال...';
-  try{
-    const res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)});
-    const out=await res.json();
-    if(!out.ok)throw new Error(out.error||'failed');
+  if(navigator.onLine===false){showError('ما في إنترنت على جوالك. اتصل وجرّب مرة ثانية.');btn.disabled=false;btn.textContent='إرسال التقييم';return}
+  // Google's reply comes back through a redirect that some phones can't read, even though the row is saved.
+  // So send without waiting for the reply: sendBeacon first (the browser delivers it even if the page closes), then a no-cors fetch.
+  const body=JSON.stringify(data);
+  let sent=false;
+  try{ if(navigator.sendBeacon) sent=navigator.sendBeacon(ENDPOINT,new Blob([body],{type:'text/plain;charset=utf-8'})); }catch(e){}
+  if(!sent){
+    try{
+      const ctl=new AbortController();const timer=setTimeout(()=>ctl.abort(),20000);
+      await fetch(ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body,signal:ctl.signal});
+      clearTimeout(timer);sent=true;
+    }catch(e){}
+  }
+  if(sent){
     form.style.display='none';document.getElementById('success').style.display='block';window.scrollTo({top:0,behavior:'smooth'});
-  }catch(err){
+  }else{
     showError('ما قدرنا نرسل تقييمك. تأكد من اتصال الإنترنت وجرّب مرة ثانية.');
     btn.disabled=false;btn.textContent='إرسال التقييم';
   }
