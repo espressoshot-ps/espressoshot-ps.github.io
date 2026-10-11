@@ -223,7 +223,7 @@ function buildDashboard_(ss) {
   // App section
   sm.getRange(30, 2, 1, 8).merge().setValue('تطبيق ESPRESSO SHOT').setFontSize(13).setFontWeight('bold').setHorizontalAlignment('right');
   var appRows = [
-    ['جرّبوا التطبيق', '=COUNTIF(' + q + 'K2:K,"نعم")&" من "&COUNTA(' + q + 'K2:K)', '@'],
+    ['نسبة اللي جرّبوا التطبيق', '=IFERROR(COUNTIF(' + q + 'K2:K,"نعم")/COUNTA(' + q + 'K2:K),"—")', '0%'],
     ['متوسط تقييم التطبيق (من 5)', '=IFERROR(AVERAGE(' + q + 'L2:L),"—")', '0.0'],
     ['أكثر سبب لعدم التجربة', '=IFERROR(INDEX(QUERY({' + q + 'M2:M},"select Col1, count(Col1) where Col1 <> \'\' group by Col1 order by count(Col1) desc limit 1",0),2,1),"—")', '@']
   ];
