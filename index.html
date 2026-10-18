@@ -73,7 +73,7 @@ input.trap{position:absolute;top:0;right:0;width:1px!important;height:1px;paddin
 </head>
 <body>
 <main class="wrap"><section class="card">
-<header class="head"><div class="brand" role="img" aria-label="Espresso Shot"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span><span aria-hidden="true">SPRESSO SHOT</span></div><h1>كيف كانت تجربتك؟</h1><p>رأيك بيساعدنا نطوّر تجربتك<br>الاستبيان أقل من دقيقة</p></header>
+<header class="head"><div class="brand" role="img" aria-label="Espresso Shot"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span><span aria-hidden="true">SPRESSO SHOT</span></div><h1>كيف كانت تجربتك؟</h1><p>رأيك بساعدنا نطوّر تجربتك<br>الاستبيان أقل من دقيقة</p></header>
 <form id="survey">
 <div class="greet"><div class="bubble">أهلاً فيك!<br><span>خلّينا نعرف كيف كانت زيارتك اليوم</span></div><img src="beans/hero.png" alt="باريستا ESPRESSO SHOT بيسلّم عليك" width="446" height="643" onerror="this.closest('.greet').remove()"></div>
 <div class="field"><label class="label" for="branch">أي فرع زرت؟</label><select id="branch" required><option value="" selected disabled>اختَر الفرع</option><option>الماصيون</option><option>الطيرة</option><option>وسط البلد</option></select></div>
@@ -133,7 +133,7 @@ form.addEventListener('submit',async function(e){
   if(!/^https:\/\//.test(ENDPOINT)){showError('النموذج غير مفعّل بعد. لطفًا بلّغ أحد الموظفين.');return}
   const data={branch:document.getElementById('branch').value,quality:picked('quality'),speed:picked('speed'),clean:picked('clean'),overall:picked('overall'),note:document.getElementById('note').value.trim(),name:name.value.trim(),phone:normPhone(phone.value)||'',consent:consent.checked,app:picked('app'),appRating:picked('app')==='yes'?picked('appRating'):'',appNote:picked('app')==='yes'?document.getElementById('appNote').value.trim():'',appWhy:picked('app')==='no'?picked('appWhy'):'',appWhyNote:picked('app')==='no'?document.getElementById('appWhyNote').value.trim():'',website:document.getElementById('website').value};
   btn.disabled=true;btn.textContent='جاري الإرسال...';
-  if(navigator.onLine===false){showError('ما في إنترنت على جوالك. اتصل وجرّب مرة ثانية.');btn.disabled=false;btn.textContent='إرسال التقييم';return}
+  if(navigator.onLine===false){showError('ما في إنترنت على جوالك. اتصل بالإنترنت وجرّب مرة ثانية.');btn.disabled=false;btn.textContent='إرسال التقييم';return}
   // Google's reply comes back through a redirect that some phones can't read, even though the row is saved.
   // So send without waiting for the reply: sendBeacon first (the browser delivers it even if the page closes), then a no-cors fetch.
   const body=JSON.stringify(data);
