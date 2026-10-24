@@ -30,7 +30,14 @@ function doPost(e) {
   try {
     var d = JSON.parse(e.postData.contents);
     if (d.website) return reply({ ok: true }); // bot trap: silently drop
-    if (!d.branch || !rating(d.overall)) return reply({ ok: false, error: 'missing fields' });
+    if (BRANCHES.indexOf(d.branch) < 0 || !rating(d.overall)) return reply({ ok: false });
+
+    // flood guard: max 40 replies per 10 minutes across all tables (real traffic is far below this)
+    var cache = CacheService.getScriptCache();
+    var slot = 'n' + Math.floor(Date.now() / 600000);
+    var count = Number(cache.get(slot) || 0);
+    if (count >= 40) return reply({ ok: false });
+    cache.put(slot, String(count + 1), 900);
 
     lock.waitLock(10000);
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
@@ -52,7 +59,7 @@ function doPost(e) {
     sheet.getRange(sheet.getLastRow(), 1).setNumberFormat('dd/mm/yyyy  hh:mm');
     return reply({ ok: true });
   } catch (err) {
-    return reply({ ok: false, error: String(err) });
+    return reply({ ok: false });
   } finally {
     try { lock.releaseLock(); } catch (x) {}
   }
